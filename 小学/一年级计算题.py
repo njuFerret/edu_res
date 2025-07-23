@@ -33,6 +33,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+title = '四则运算'
 
 def getQuestions():
     sess = requests.session()
@@ -47,13 +48,14 @@ def getQuestions():
     payload = {
         'num_type': '1',
         'max': '49',
-        'type_cal': '3',
+        # 'type_cal': '3',  # 加减混合运算
+        'type_cal': '7',  # 四则运算
         'cal_num': '4',
         'bracket': '1',
         'positive_num': '1',
-        'int_num': '0',
+        'int_num': '1',
         'num': '400',
-        'tzgbt': '加减混合运算',
+        'tzgbt': title,
     }
 
     r = sess.post(url, data=payload, proxies=proxies)
@@ -70,16 +72,23 @@ def getQuestions():
 
 def getAnswer(questions):
     msg = ''
+    today = datetime.now().strftime('%Y年%m月%d日')
+    num_per_page = 40
+    total_pages = len(questions)/num_per_page
     for idx, s in enumerate(questions):
         if idx % 2 == 0:
-
-            msg = f'[{idx+1:03d}] {s}'
-            msg += str(eval(s.replace('=', '')))
+            if idx % num_per_page == 0:
+                page_index = idx//num_per_page
+                msg = f'{today} {title} ( {page_index + 1:02d}/{total_pages:2.0f} )\n'
+            else:
+                msg = ''
+            msg += f'[{idx+1:03d}] {s}'
+            msg += f"{(eval(s.replace('=', '').replace('÷','/').replace('x','*'))):.0f}" #str(eval(s.replace('=', '')))
         else:
             msg += '\t\t\t\t\t'
             msg += f'[{idx+1:03d}] {s}'
-            msg += str(eval(s.replace('=', '')))
-            if (idx + 1) > 10 and (idx + 1) % 40 == 0:
+            msg += f"{(eval(s.replace('=', '').replace('÷','/').replace('x','*'))):.0f}"
+            if (idx + 1) > 10 and (idx + 1) % num_per_page == 0:
                 msg += "\n\n"
             logger.info(msg)
     logger.info('\n\n')
