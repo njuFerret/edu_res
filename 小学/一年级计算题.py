@@ -19,7 +19,29 @@ from lxml import etree
 START = datetime.now()
 thisScript = pathlib.Path(__file__)
 logLevel = logging.INFO
-logFile = thisScript.with_suffix('.log')
+
+title = 'None'
+type_cal = 3        # 计算类型, 1:加法,2:减法, 3:加减混合, 4:乘法, 5:除法, 6:乘除混合, 7:混合运算
+
+cal_num = 4         # 数字个数, 测试20成功
+max_num = 49        # = 最大数字 - 1
+with_bracket = 1    # 1:带括号, 0:不带括号
+
+num_per_page = 40   # 分页数量
+total_number = 400  # 题目总数, 测试800题 PASS
+
+type_cals = ['加法','减法', '加减混合', '乘法', '除法', '乘除混合', '混合四则']
+title = f'{type_cals[(type_cal -1) % 7]}运算'
+
+if cal_num == 2:
+    with_bracket=0
+
+
+title = f'{title}({max_num +1}以内)'
+
+logFileName = f"{title}_{datetime.now().strftime('%Y%m%d-%H%M%S')}.log"
+logFile = thisScript.with_name(logFileName)
+#logFile = thisScript.with_suffix('.log')
 
 # fmt:off
 # Basic logging configuration
@@ -30,10 +52,9 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 # fmt:on
-
 logger = logging.getLogger(__name__)
 
-title = '四则运算'
+
 
 def getQuestions():
     sess = requests.session()
@@ -46,16 +67,16 @@ def getQuestions():
     url = 'https://www.an2.net/cal/zi.php'
 
     payload = {
-        'num_type': '1',
-        'max': '49',
-        # 'type_cal': '3',  # 加减混合运算
-        'type_cal': '7',  # 四则运算
-        'cal_num': '4',
-        'bracket': '1',
-        'positive_num': '1',
-        'int_num': '1',
-        'num': '400',
-        'tzgbt': title,
+        'num_type': '1',            # 数字类型, 1:整数, 2:小数    
+        'max': max_num,             # 最大数字
+        #'max': '99',
+        'type_cal': type_cal,       # 计算类型, 1:加法,2:减法, 3:加减混合, 4:乘法, 5:除法, 6:乘除混合, 7:混合运算
+        'cal_num': cal_num,         # 数字个数
+        'bracket': with_bracket,    # 括号，1:带括号, 0:不带括号
+        'positive_num': '1',        # 1: 结果强制非负, 0: 结果可负
+        'int_num': '1',             # 1: 结果强制为整数, 0: 结果可非整
+        'num': total_number,        # 题目数量
+        'tzgbt': title,             # 标题
     }
 
     r = sess.post(url, data=payload, proxies=proxies)
@@ -72,8 +93,7 @@ def getQuestions():
 
 def getAnswer(questions):
     msg = ''
-    today = datetime.now().strftime('%Y年%m月%d日')
-    num_per_page = 40
+    today = datetime.now().strftime('%Y年%m月%d日')    
     total_pages = len(questions)/num_per_page
     for idx, s in enumerate(questions):
         if idx % 2 == 0:
@@ -96,9 +116,16 @@ def getAnswer(questions):
 
 def forPrint(questions):
     msg = ''
+    today = datetime.now().strftime('%Y年%m月%d日')    
+    total_pages = len(questions)/num_per_page
     for idx, s in enumerate(questions):
         if idx % 2 == 0:
-            msg = f'[{idx+1:03d}] {s} '
+            if idx % num_per_page == 0:
+                page_index = idx//num_per_page
+                msg = f'{today} {title} ( {page_index + 1:02d}/{total_pages:2.0f} )\n'
+            else:
+                msg = ''
+            msg += f'[{idx+1:03d}] {s}'
         else:
             msg += '\t\t\t\t\t'
             msg += f'[{idx+1:03d}] {s}'
@@ -118,7 +145,7 @@ def main():
 
 if __name__ == '__main__':
     # fmt: off
-    logger.info('脚本 %s 开始运行, 时间：%s ' %(thisScript.name, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    #logger.info('脚本 %s 开始运行, 时间：%s ' %(thisScript.name, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     main()
-    logger.info('脚本 %s 运行完成, 时间：%s ' %(thisScript.name, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    #logger.info('脚本 %s 运行完成, 时间：%s ' %(thisScript.name, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     # fmt: on
