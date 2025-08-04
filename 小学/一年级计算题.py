@@ -21,10 +21,10 @@ thisScript = pathlib.Path(__file__)
 logLevel = logging.INFO
 
 title = 'None'
-type_cal = 3        # 计算类型, 1:加法,2:减法, 3:加减混合, 4:乘法, 5:除法, 6:乘除混合, 7:混合运算
+type_cal = 7        # 计算类型, 1:加法,2:减法, 3:加减混合, 4:乘法, 5:除法, 6:乘除混合, 7:混合运算
 
 cal_num = 4         # 数字个数, 测试20成功
-max_num = 49        # = 最大数字 - 1
+max_num = 100        # = 最大数字
 with_bracket = 1    # 1:带括号, 0:不带括号
 
 num_per_page = 40   # 分页数量
@@ -37,7 +37,7 @@ if cal_num == 2:
     with_bracket=0
 
 
-title = f'{title}({max_num +1}以内)'
+title = f'{title}({max_num}以内)'
 
 logFileName = f"{title}_{datetime.now().strftime('%Y%m%d-%H%M%S')}.log"
 logFile = thisScript.with_name(logFileName)
@@ -68,7 +68,7 @@ def getQuestions():
 
     payload = {
         'num_type': '1',            # 数字类型, 1:整数, 2:小数    
-        'max': max_num,             # 最大数字
+        'max': max_num-1,           # 最大数字
         #'max': '99',
         'type_cal': type_cal,       # 计算类型, 1:加法,2:减法, 3:加减混合, 4:乘法, 5:除法, 6:乘除混合, 7:混合运算
         'cal_num': cal_num,         # 数字个数
