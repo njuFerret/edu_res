@@ -60,11 +60,11 @@ def getQuestions():
     sess = requests.session()
 
     proxies = {
-        'http': 'http://jpoffice_v4:33080',
-        'https': 'http://jpoffice_v4:33080',
+    #    'http': 'http://jpoffice.v4:33080',
+    #    'https': 'http://jpoffice.v4:33080',
     }
 
-    url = 'https://www.an2.net/cal/zi.php'
+    url = 'https://www.an2.net/old_ver/cal/zi.php'
 
     payload = {
         'num_type': '1',            # 数字类型, 1:整数, 2:小数    
